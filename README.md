@@ -23,7 +23,7 @@ Esta é a interface de usuário (frontend) para o projeto Gerenciador de Tarefas
 Este projeto não requer um processo de build ou instalação complexo.
 
 1.  Clone este repositório.
-2.  Certifique-se de que a [API Backend](link-para-seu-repo-backend) esteja em execução.
+2.  Certifique-se de que a [API Backend](https://github.com/jacksonccosta/backend-tarefas) esteja em execução.
 
 ## Como Executar
 
