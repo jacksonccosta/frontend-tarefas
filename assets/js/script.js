@@ -13,19 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const doingColumn = document.getElementById('doing-column');
     const doneColumn = document.getElementById('done-column');
 
+    let taskIdToDelete = null; // Variável para armazenar ID da tarefa a excluir
+
     // Função para buscar as tarefas da API e exibi-las na tela
     async function fetchAndDisplayTasks() {
         try {
-            // Chama a rota GET /tarefas da API
             const response = await fetch(`${API_URL}/tarefas`);
             const tasks = await response.json();
 
-            // Limpa as colunas antes de adicionar as tarefas
             todoColumn.innerHTML = '';
             doingColumn.innerHTML = '';
             doneColumn.innerHTML = '';
 
-            // Itera sobre cada tarefa e a adiciona na coluna correta
             tasks.forEach(task => {
                 const taskCard = createTaskCard(task);
                 if (task.status === 'A Fazer') {
@@ -60,11 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        // Adiciona evento ao botão de deletar
         const deleteBtn = card.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', () => deleteTask(task.id));
 
-        // Adiciona eventos aos botões de mover
         const moveBtns = card.querySelectorAll('.move-btn');
         moveBtns.forEach(btn => {
             btn.addEventListener('click', () => updateTaskStatus(task.id, btn.dataset.status));
@@ -73,61 +70,65 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     }
 
-    // Função para adicionar uma nova tarefa (chamada pelo formulário)
     async function addTask(event) {
-        event.preventDefault(); // Impede o recarregamento da página
+        event.preventDefault();
 
         const title = taskTitleInput.value;
         const description = taskDescriptionInput.value;
 
-        if (!title) return; // Não adiciona se o título estiver vazio
+        if (!title) return;
 
         try {
-            // Chama a rota POST /tarefas
             await fetch(`${API_URL}/tarefas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ titulo: title, descricao: description }),
             });
-            // Limpa o formulário e atualiza a lista de tarefas
             taskForm.reset();
             fetchAndDisplayTasks();
         } catch (error) {
             console.error('Erro ao adicionar tarefa:', error);
         }
     }
-    
-    // Função para deletar uma tarefa
-    async function deleteTask(taskId) {
-        if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return;
-        
+
+    // Função para abrir modal de exclusão
+    function deleteTask(taskId) {
+        taskIdToDelete = taskId;
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    // Listener do botão "Confirmar Exclusão"
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+        if (!taskIdToDelete) return;
+
         try {
-            // Chama a rota DELETE /tarefas/<id>
-            await fetch(`${API_URL}/tarefas/${taskId}`, { method: 'DELETE' });
-            fetchAndDisplayTasks(); // Atualiza a lista
+            await fetch(`${API_URL}/tarefas/${taskIdToDelete}`, { method: 'DELETE' });
+            taskIdToDelete = null;
+
+            const modalEl = document.getElementById('deleteModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+
+            fetchAndDisplayTasks();
         } catch (error) {
             console.error('Erro ao deletar tarefa:', error);
         }
-    }
+    });
 
-    // Função para atualizar o status de uma tarefa
     async function updateTaskStatus(taskId, newStatus) {
         try {
-            // Chama a rota PUT /tarefas/<id>
             await fetch(`${API_URL}/tarefas/${taskId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
             });
-            fetchAndDisplayTasks(); // Atualiza a lista
+            fetchAndDisplayTasks();
         } catch (error) {
             console.error('Erro ao atualizar status:', error);
         }
     }
 
-    // Adiciona o listener para o evento de submit do formulário
     taskForm.addEventListener('submit', addTask);
-
-    // Carrega as tarefas existentes quando a página é aberta pela primeira vez
     fetchAndDisplayTasks();
 });
