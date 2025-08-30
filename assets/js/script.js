@@ -1,10 +1,6 @@
-// Espera o conteúdo da página carregar completamente antes de executar o script
 document.addEventListener('DOMContentLoaded', () => {
-
-    // URL base da nossa API (certifique-se que o backend está rodando)
     const API_URL = 'http://127.0.0.1:5000';
 
-    // Elementos do DOM que vamos manipular
     const taskForm = document.getElementById('task-form');
     const taskTitleInput = document.getElementById('task-title');
     const taskDescriptionInput = document.getElementById('task-description');
@@ -13,12 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const doingColumn = document.getElementById('doing-column');
     const doneColumn = document.getElementById('done-column');
 
-    let taskIdToDelete = null; // Variável para armazenar ID da tarefa a excluir
+    let taskIdToDelete = null;
 
-    // Função para buscar as tarefas da API e exibi-las na tela
     async function fetchAndDisplayTasks() {
         try {
-            const response = await fetch(`${API_URL}/tarefas`);
+            const response = await fetch(`${API_URL}/buscar_tarefas`);
             const tasks = await response.json();
 
             todoColumn.innerHTML = '';
@@ -40,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para criar o HTML de um card de tarefa
     function createTaskCard(task) {
         const card = document.createElement('div');
         card.className = 'card task-card mb-3';
@@ -79,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!title) return;
 
         try {
-            await fetch(`${API_URL}/tarefas`, {
+            await fetch(`${API_URL}/adicionar_tarefa`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ titulo: title, descricao: description }),
@@ -91,19 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para abrir modal de exclusão
     function deleteTask(taskId) {
         taskIdToDelete = taskId;
         const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
         modal.show();
     }
 
-    // Listener do botão "Confirmar Exclusão"
     document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
         if (!taskIdToDelete) return;
 
         try {
-            await fetch(`${API_URL}/tarefas/${taskIdToDelete}`, { method: 'DELETE' });
+            await fetch(`${API_URL}/deletar_tarefa/${taskIdToDelete}`, { method: 'DELETE' });
             taskIdToDelete = null;
 
             const modalEl = document.getElementById('deleteModal');
@@ -118,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateTaskStatus(taskId, newStatus) {
         try {
-            await fetch(`${API_URL}/tarefas/${taskId}`, {
+            await fetch(`${API_URL}/atualizar_tarefa/${taskId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
