@@ -1,0 +1,32 @@
+body {
+    background-color: #f0f2f5; /* Um cinza bem claro para o fundo */
+}
+
+.column-header {
+    background-color: #6c757d; /* Cinza do Bootstrap */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.task-column {
+    background-color: #e9ecef; /* Cinza mais claro para o fundo da coluna */
+    border-radius: 5px;
+    padding: 10px;
+    min-height: 400px;
+}
+
+.task-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.task-card:hover {
+    transform: translateY(-5px); /* Efeito de "levantar" o card */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-group .btn {
+    margin-right: 5px;
+}
